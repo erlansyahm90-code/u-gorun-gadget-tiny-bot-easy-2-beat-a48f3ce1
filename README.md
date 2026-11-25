@@ -39,6 +39,21 @@ The harness speaks the bars-replay line protocol on stdin/stdout (a
 python3 main.py
 ```
 
+## Local grade results (dev window, `grade-local`)
+
+| Entry | Net PnL (USDC) | Trades | Max drawdown | Guardrails |
+|---|---|---|---|---|
+| **This bot** | **-125.14** | 29 | 3.58% | pass |
+| Buy-and-hold baseline | -869.34 | 7 | 10.92% | — |
+| EMA-cross baseline | -173.04 | 28 | 2.51% | — |
+| Momentum baseline | -268.23 | 19 | 5.66% | — |
+
+The dev window is one falling-market sample (136 hourly bars): everything
+lost, and the trend filter lost least by sitting in USDC while the
+universe fell. The final window is three days nobody has seen; the bot's
+claim is defense, not a guaranteed edge — in a rising window buy-and-hold
+is fully invested from the first bar and this bot is not.
+
 ## Layout
 
 - `main.py` — the strategy (entrypoint)
