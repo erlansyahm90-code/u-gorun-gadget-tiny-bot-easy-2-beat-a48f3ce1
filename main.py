@@ -74,6 +74,15 @@ def on_batch(state, batch):
     min_notional = int(state.hello["fees"]["min_notional_quote_units"])
     orders = []
 
+    # A downtrend close on any fresh bar resets a stopped symbol's suppression,
+    # held or not: from here it may be bought again on its next uptrend.
+    for info in state.hello["symbols"]:
+        symbol = info["symbol"]
+        if symbol in fresh and symbol in stopped:
+            direction = trend(symbol)
+            if direction is not None and direction < 0:
+                stopped.discard(symbol)
+
     # Sells first, in universe order: a downtrend close or the hard stop ends the position.
     for info in state.hello["symbols"]:
         symbol = info["symbol"]
@@ -83,8 +92,6 @@ def on_batch(state, batch):
         if held is None:
             continue
         direction = trend(symbol)
-        if direction is not None and direction < 0:
-            stopped.discard(symbol)
         stop_hit = state.value(symbol, held.qty) * STOP_DEN <= held.cost * STOP_NUM
         if (direction is not None and direction <= 0) or stop_hit:
             orders.append({"side": "sell", "symbol": symbol, "qty": held.qty, "max_slippage_bps": MAX_SLIPPAGE_BPS})
